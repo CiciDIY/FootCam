@@ -252,6 +252,7 @@ class BottomView(wx.Frame):
     def camerapi(self,event):
         camera = picamera.PiCamera()
         camera.resolution = (2592, 1944)
+        camera.drc_strength = 'high'
         time.sleep(2)
         filename = str(self.variable1) + ' Bottomview.jpg'
         filename2 =str(self.variable1)
