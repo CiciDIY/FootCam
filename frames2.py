@@ -7,6 +7,7 @@ import picamera
 from datetime import datetime
 import subprocess
 import time
+import os
 variable1 = 0
 
  
@@ -48,8 +49,12 @@ class SideView(wx.Frame):
         cam.start()
         image= cam.get_image()
         filename = str(self.variable1) + " Sideview.jpg"
-        pygame.image.save(image, filename)
-        cam.stop()
+        filename2 =str(self.variable1)
+        npath ="/home/pi/FootCam/" + str(filename2)
+        if not os.path.isdir(npath):
+            os.makedirs(npath)
+        pygame.image.save(image, npath + "/" + filename)
+            
 
     #----------------------------------------------------------------------
     def BacktoPatInfo(self, event):
@@ -106,8 +111,12 @@ class MainPanel(wx.Panel):
         
         if self.patnum.GetValue() :
             variable1 = int(self.patnum.GetValue())
+            filename2 =str(variable1)
+            npath ="/home/pi/FootCam/" + str(filename2)
+            if not os.path.isdir(npath):
+                os.makedirs(npath)
             Fname = str(self.patnum.GetValue()) + " " + str(datetime.strftime(datetime.now(), '%Y-%m-%d'))+".txt"
-            Fhand = open(Fname, "w")
+            Fhand = open(npath + "/" + Fname, "w")
             Fhand.write("Patient Number: " + str(self.patnum.GetValue()))
             Fhand.write("\n")
         if self.patsur.GetValue():
@@ -203,7 +212,11 @@ class BackView(wx.Frame):
         cam.start()
         image= cam.get_image()
         imgname = str(self.variable1) + " Backview.jpg"
-        pygame.image.save(image,imgname)
+        filename2 =str(self.variable1)
+        npath ="/home/pi/FootCam/" + str(filename2)
+        if not os.path.isdir(npath):
+            os.makedirs(npath)
+        pygame.image.save(image,npath + "/" +imgname)
         cam.stop()
 
     def on_close(self, event):
@@ -241,7 +254,11 @@ class BottomView(wx.Frame):
         camera.resolution = (2592, 1944)
         time.sleep(2)
         filename = str(self.variable1) + ' Bottomview.jpg'
-        camera.capture(filename)
+        filename2 =str(self.variable1)
+        npath ="/home/pi/FootCam/" + str(filename2)
+        if not os.path.isdir(npath):
+            os.makedirs(npath)
+        camera.capture(npath + "/" + filename)
         camera.close()
         
     def on_close(self, event):
