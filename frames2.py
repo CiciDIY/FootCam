@@ -13,8 +13,9 @@ class SideView(wx.Frame):
     """"""
  
     #----------------------------------------------------------------------
-    def __init__(self):
+    def __init__(self, variable1):
         """Constructor"""
+        self.variable1 = variable1
         wx.Frame.__init__(self, None, wx.ID_ANY, "Sideview Camera")
         panel = wx.Panel(self)
         
@@ -44,7 +45,7 @@ class SideView(wx.Frame):
         cam = pygame.camera.Camera("/dev/video0",(352,288))
         cam.start()
         image= cam.get_image()
-        filename = "Sideview.jpg"
+        filename = str(self.variable1) + " Sideview.jpg"
         pygame.image.save(image, filename)
         cam.stop()
 
@@ -56,17 +57,15 @@ class SideView(wx.Frame):
         PatInfo.Show()
 
 ########################################################################
-class MainPanel(wx.Panel, object):
+class MainPanel(wx.Panel):
     """"""
     variable1 = 0
-     
     #----------------------------------------------------------------------
-    def __init__(self, parent):
-        MainPanel.variable1 = 0
+    def __init__(self, parent, variable1):
         """Patient information Panel"""
         wx.Panel.__init__(self, parent=parent)
+        MainPanel.variable1 = variable1 + 2
         self.frame = parent
-
         Publisher().subscribe(self.showFrame, ("show.mainframe"))
         self.patnum = wx.TextCtrl(self, value = "")
         self.pntext = wx.StaticText(self, -1, "Patient Number")
@@ -97,15 +96,14 @@ class MainPanel(wx.Panel, object):
         sizer.Add(self.heighttext, 0, wx.EXPAND)
         sizer.Add(bottomBtn,  0, wx.EXPAND)
         self.SetSizer(sizer)
-
+     
     def hideFrame3(self,event):
         """Close Patient information Panel and open Bottom Camera Panel"""
     
         self.frame.Hide()
-        new_frame3 = BottomView(self)
-        new_frame3.Show()
+        
         if self.patnum.GetValue() :
-            MainPanel.variable1 = int(self.patnum.GetValue())
+            variable1 = int(self.patnum.GetValue())
             Fname = str(self.patnum.GetValue()) + " " + str(datetime.strftime(datetime.now(), '%Y-%m-%d'))+".txt"
             Fhand = open(Fname, "w")
             Fhand.write("Patient Number: " + str(self.patnum.GetValue()))
@@ -123,7 +121,9 @@ class MainPanel(wx.Panel, object):
             Fhand.write("Patient height: " + str(self.patheight.GetValue()))
             Fhand.write("\n")
             Fhand.close()
-            
+
+        new_frame3 = BottomView(variable1)
+        new_frame3.Show()    
             
 
     #----------------------------------------------------------------------
@@ -150,7 +150,7 @@ class MainFrame(wx.Frame):
     #----------------------------------------------------------------------
     def __init__(self):
         wx.Frame.__init__(self, None, wx.ID_ANY, "Foot Camera program")
-        panel = MainPanel(self)
+        panel = MainPanel(self, variable1)
         self.Bind(wx.EVT_CLOSE, self.on_close)
 
     def hideFrame(self,event):
@@ -171,10 +171,12 @@ class MainFrame(wx.Frame):
 class BackView(wx.Frame):
     """Backview of Camera interface"""
     
-    def __init__(self):
-        
+    def __init__(self, variable1):
+        self.variable1 = variable1
         wx.Frame.__init__(self, None, wx.ID_ANY, "Backview Camera" )
         panel = wx.Panel(self)
+        print self.variable1
+        print "^^ The thing"
         
         sideBtn = wx.Button(panel, label= "To Sideview camera")
         sideBtn.Bind(wx.EVT_BUTTON, self.hideFrame4)
@@ -190,7 +192,7 @@ class BackView(wx.Frame):
     def hideFrame4(self,event):
         """Close BAckview and open sideview"""
         self.Hide()
-        new_frame4= SideView()
+        new_frame4= SideView(self.variable1)
         new_frame4.Show()
 
     def takephotocam2(self, event):
@@ -201,7 +203,7 @@ class BackView(wx.Frame):
         cam = pygame.camera.Camera("/dev/video0",(352,288))
         cam.start()
         image= cam.get_image()
-        imgname = 'Backview.jpg'
+        imgname = str(self.variable1) + " Backview.jpg"
         pygame.image.save(image,imgname)
         cam.stop()
 
@@ -209,14 +211,15 @@ class BackView(wx.Frame):
         self.Destroy()
         sys.exit(0)
         
-class BottomView(wx.Frame, MainPanel):
+class BottomView(wx.Frame):
     """"""
-
-    def __init__(self, class_a):
+    def __init__(self,variable1):
         """Constructor"""
-        print class_a.variable1
         wx.Frame.__init__(self, None, wx.ID_ANY, "Bottomview camera")
         panel = wx.Panel(self)
+        self.variable1 = variable1
+        print self.variable1
+        print "^^ The thing"
         
         backBtn = wx.Button(panel, label="To Backview camera")
         backBtn.Bind(wx.EVT_BUTTON, self.hideFrame2)
@@ -232,12 +235,13 @@ class BottomView(wx.Frame, MainPanel):
     def hideFrame2(self,event):
         """close Bottomview and open backview"""
         self.Hide()
-        new_frame2 = BackView()
+        new_frame2 = BackView(self.variable1)
         new_frame2.Show()
 
     def camerapi(self,event):
         camera = picamera.PiCamera()
-        filename = 'Bottomview.jpg'
+        camera.start_preview()
+        filename = str(self.variable1) + ' Bottomview.jpg'
         camera.capture(filename)
         camera.close()
 
