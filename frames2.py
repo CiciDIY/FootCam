@@ -5,6 +5,8 @@ from pygame.locals import *
 import pygame.camera
 import picamera
 from datetime import datetime
+import subprocess
+import time
 variable1 = 0
 
  
@@ -175,9 +177,6 @@ class BackView(wx.Frame):
         self.variable1 = variable1
         wx.Frame.__init__(self, None, wx.ID_ANY, "Backview Camera" )
         panel = wx.Panel(self)
-        print self.variable1
-        print "^^ The thing"
-        
         sideBtn = wx.Button(panel, label= "To Sideview camera")
         sideBtn.Bind(wx.EVT_BUTTON, self.hideFrame4)
         BckBtn = wx.Button(panel, label = " Take photo Backview")
@@ -218,15 +217,14 @@ class BottomView(wx.Frame):
         wx.Frame.__init__(self, None, wx.ID_ANY, "Bottomview camera")
         panel = wx.Panel(self)
         self.variable1 = variable1
-        print self.variable1
-        print "^^ The thing"
-        
+        #self.Image = wx.StaticBitmap(self, bitmap=wx.EmptyBitmap())
         backBtn = wx.Button(panel, label="To Backview camera")
         backBtn.Bind(wx.EVT_BUTTON, self.hideFrame2)
         picamBtn = wx.Button(panel, label = " Take Bottomview photo")
         picamBtn.Bind(wx.EVT_BUTTON, self.camerapi)
         
         sizer = wx.GridSizer(2,2,5,5)
+        #sizer.Add(self.Image, 0, wx.EXPAND)
         sizer.Add(backBtn, 0, wx.EXPAND)
         sizer.Add(picamBtn, 0, wx.EXPAND)
         panel.SetSizer(sizer)
@@ -240,11 +238,12 @@ class BottomView(wx.Frame):
 
     def camerapi(self,event):
         camera = picamera.PiCamera()
-        camera.start_preview()
+        camera.resolution = (2592, 1944)
+        time.sleep(2)
         filename = str(self.variable1) + ' Bottomview.jpg'
         camera.capture(filename)
         camera.close()
-
+        
     def on_close(self, event):
         self.Destroy()
         sys.exit(0)
